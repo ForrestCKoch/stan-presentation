@@ -1,0 +1,12 @@
+---
+title: "Examples"
+author: "Forrest"
+date: "2023-03-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(rstan)
+knitr::opts_chunk$set(echo = TRUE)
+```
+

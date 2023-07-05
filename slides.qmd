@@ -1,0 +1,410 @@
+---
+title: "Probabilistic Programming with STAN"
+author: "Forrest Koch"
+format: 
+    revealjs:
+        theme: dark
+        transition: slide
+        background-transition: fade
+        incremental: true   
+title-slide-attributes:
+    data-background-image: logo_tm.png
+    data-background-size: contain
+    data-background-opacity: "0.65"
+    
+editor: source
+---
+
+## *Disclaimer* {background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+I am by no means an expert in Bayesian Inference. I would describe myself
+Bayesian "enthusiast" at best.
+
+## Aims {background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+- To encourage you to consider Bayesian approaches for your analyses.
+- To put STAN on your radar as a flexible and powerful tool for Bayesian inference.
+- Give an overview of how STAN works.
+- Provide some examples of how it can be used.
+
+## Overview {background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+- Why Bayes?
+- Why STAN?
+- How does it work?
+- Some Examples.
+
+## The Canonical Formula {background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+Bayes Rule:
+$$ P(A|B) = \frac{P(B|A)P(A)}{P(B)} $$
+
+![](Thomas_Bayes3.jpg){.absolute bottom=80 left=200 height="45%"}
+![](Laplace.jpg){.absolute bottom=80 right=200 height="45%"}
+
+:::{style="margin-top: 350px"}
+<center><small>Thomas Bayes (1701--1761; left) and Pierre-Simon Laplace (1749--1827; right)</small></center>
+:::
+## In practice
+
+$$\underbrace{P(\boldsymbol{\theta}|x)}_{\text{posterior}}\propto \overbrace{\mathcal{L}(x|\boldsymbol{\theta})}^{\text{Likelihood}}\underbrace{P(\boldsymbol{\theta})}_{\text{prior}}$$
+
+- $x$ is the observed data
+- $\boldsymbol{\theta}$ are the parameters of interest
+- Note 1: $P(x)$ is not tractable, but it is constant
+- Note 2: A uniform prior results in $P(\boldsymbol{\theta}|x)\propto \mathcal{L}(x|\boldsymbol{\theta})$
+
+
+## Bayesian versus Frequentist {auto-animate=true background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+**Frequentist:**
+$$\hat{\boldsymbol{\theta}}_{\text{MLE}}=\underset{\boldsymbol{\theta}}{\text{argmax}} \;\mathcal{L}(x|\boldsymbol{\theta})$$
+
+- The true parameter is treated as constant.
+- Estimate aims to maximize the probability of observing data.
+
+## Bayesian versus Frequentist {auto-animate=true background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+**Bayesian:**
+$$\hat{\boldsymbol{\theta}}_{\text{MAP}}=\underset{\boldsymbol{\theta}}{\text{argmax}}  \;P(\boldsymbol{\theta}|x)$$
+
+- The true parameter is treated as random.
+- The estimate is chosen as the posterior mode.
+
+## Benefits of Bayes over Frequentist{background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+- The ability to incorporate prior knowledge
+- More interpretable
+    - Credible intervals vs. confidence intervals
+    - Estimation of probability of hypotheses
+    - Resolves some of the limitations of p-values
+- More flexible
+    - Hierarchical models are more straightforward
+    - Easier to take measurement uncertainty into account
+    - Non-standard hypothesis testing by probing the posterior
+    
+## Drawbacks of the Bayes approach:{background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+- Computationally complex \& demanding
+- Prior specification is very important
+    - Too strong of a prior can bias results
+    - Can affect tractability (remedied by conjugate priors)
+- Not what people are used to seeing
+
+## STAN{background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+- Probabilistic programming language (PPL) for facilitating Bayesian inference 
+- Has interfaces for R, Python, shell, MATLAB, Julia, and Stata
+- Multithreaded and compiles down to C++
+- Intuitive model specification 
+  - e.g:  `y[i] ~ normal(mu,sigma);`
+- Amazing [reference](https://mc-stan.org/docs/reference-manual/language.html) and [user's guide](https://mc-stan.org/docs/2_19/stan-users-guide/)
+
+## How it works: HMC and NUTS {background-image="HAM.gif" background-opacity="0.15" background-size="50%" background-position="100% 0%"}
+
+- Hamiltonian Markov Chain (HMC) is an alternative to Metropolis-Hastings or Gibbs Sampling
+  - Allows for more efficient sampling of high-dimensional spaces
+  - Analogous to [simulating a particle](https://chi-feng.github.io/mcmc-demo/app.html) moving over the posterior density
+- The No U-Turns Sampler (NUTS) provides an implementation of HMC which automatically adapts the number of leap-frog steps
+
+## Example Program Structure {auto-animate=true background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+```{.stan}
+data {
+  // Define the inputs
+}
+parameters {
+  // Define the outputs
+}
+model {
+  // Define the model
+}
+```
+
+## Example Program Structure {auto-animate=true background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+```{.stan}
+data {
+  // Define the inputs
+  int n;
+  real y[n];
+}
+parameters {
+  // Define the outputs
+}
+model {
+  // Define the model
+}
+```
+
+## Example Program Structure {auto-animate=true background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+```{.stan}
+data {
+  // Define the inputs
+  int n;
+  real y[n];
+}
+parameters {
+  // Define the outputs
+  real mu;
+  real<lower=0> sigma;
+}
+model {
+  // Define the model
+}
+```
+
+## Example Program Structure {auto-animate=true background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+```{.stan}
+data {
+  // Define the inputs
+  int n;
+  real y[n];
+}
+parameters {
+  // Define the outputs
+  real mu;
+  real<lower=0> sigma;
+}
+model {
+  // Define the model
+  for (i in 1:n)
+    y[i] ~ normal(mu,sigma);
+    
+  mu ~ normal(1.7,0.3); // prior on mu
+  sigma ~ cauchy(0,1); // prior on sigma
+}
+```
+
+
+## Program Execution {background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+```{r, include=F}
+code <- c('
+data {
+  int n;
+  real y[n];
+}
+
+parameters {
+  real mu;
+  real<lower=0> sigma;
+}
+
+model {
+  for (i in 1:n)
+   y[i] ~ normal(mu,sigma);
+  mu ~ normal(1.7,0.3);
+  sigma ~ cauchy(0,1);
+}')
+```
+
+```{r, include=F}
+library(rstan)
+options(mc.cores=4)
+
+# Simulating some data
+n <- 100
+y <- rnorm(n,1.6,0.2)
+# Compiling and running stan code
+
+model <- stan_model(model_code=code)
+fit <- sampling(model, list(n=n,y=y), iter=200, chains=4)
+```
+
+```{.r}
+library(rstan)
+options(mc.cores=4)
+
+# Simulating some data
+n <- 100
+y <- rnorm(n,1.6,0.2)
+# Compiling and running stan code
+
+model <- stan_model(model_code=code)
+fit <- sampling(model, list(n=n, y=y), iter=200, chains=4)
+```
+
+
+
+## Program Output {background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+::: {.panel-tabset}
+
+### Model Summary
+
+```{r}
+print(fit)
+```
+
+### Example Plots
+
+```{r}
+params = extract(fit)
+par(mfrow=c(1,2))
+ts.plot(params$mu,xlab="Iterations",ylab="mu")
+hist(params$sigma,main="",xlab="mu")
+```
+:::
+
+## Another Example (ZIP){background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+Let's try a slightly more complicated example. The zero-inflated Poisson (ZIP) is a mixture of the Poisson and Bernoulli distributions:
+
+$$
+P(x_n|\theta,\lambda)
+=
+\left\{
+\begin{array}{ll}
+\theta + (1 - \theta) * \mathsf{Poisson}(0|\lambda) & \mbox{ if } x_n = 0, \mbox{ and}
+\\[3pt]
+(1-\theta) * \mathsf{Poisson}(x_n|\lambda) & \mbox{ if } x_n > 0.
+\end{array}
+\right.
+$$
+
+## ZIP Priors {background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+We'll impose the priors:
+$$
+\theta\sim\beta(1,1)\\ s\sim\text{cauchy}(0,25) \\ \lambda\sim\Gamma(2,1/s)
+$$
+
+
+## ZIP Model {auto-animate=true background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+```{.stan}
+data {
+  int<lower=0> N;
+  int<lower=0> y[N];
+}
+parameters {
+}
+model {
+}
+```
+
+## ZIP Model {auto-animate=true background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+```{.stan}
+data {
+}
+parameters {
+  real<lower=0, upper=1> theta;
+  real<lower=0> lambda;
+}
+model {
+}
+```
+
+## ZIP Model {auto-animate=true background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+```{.stan}
+data {
+}
+parameters {
+}
+model {
+  scale ~ cauchy(0,25);
+  lambda ~ gamma(2, 1/scale);
+  theta ~ beta(1, 1);
+  for (n in 1:N) {
+    if (y[n] == 0)
+      target += log_sum_exp(bernoulli_lpmf(1 | theta),
+                            bernoulli_lpmf(0 | theta)
+                              + poisson_lpmf(y[n] | lambda));
+    else
+      target += bernoulli_lpmf(0 | theta)
+                  + poisson_lpmf(y[n] | lambda);
+  }
+}
+```
+
+## Program Execution{auto-animate=true background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+```{.r}
+library(rstan)
+library(shinystan)
+options(mc.cores=16)
+
+theta <- 0.25
+lambda <- 10
+
+n <- 100
+y <- rbinom(n, 1, 1-theta)*rpois(n, lambda)
+
+model <- stan_model(model_code=model.code)
+
+fit <- sampling(model, list(N=n, y=y), iter=2000, chains=16)
+```
+
+## Program Execution{auto-animate=true background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+```{.r}
+library(rstan)
+library(shinystan)
+options(mc.cores=16)
+
+theta <- 0.25
+lambda <- 10
+
+n <- 100
+y <- rbinom(n, 1, 1-theta)*rpois(n, lambda)
+
+model <- stan_model(model_code=model.code)
+
+fit <- sampling(model, list(N=n, y=y), iter=2000, chains=16)
+
+# We can use Shiny too!
+launch_shinystan(fit, host="0.0.0.0", port=4242)
+```
+
+## Program Execution{auto-animate=true background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+```{.r}
+library(rstan)
+library(shinystan)
+options(mc.cores=16)
+
+theta <- 0.25
+lambda <- 10
+
+n <- 100
+y <- rbinom(n, 1, 1-theta)*rpois(n, lambda)
+
+model <- stan_model(model_code=model.code)
+
+fit <- sampling(model, list(N=n, y=y), iter=2000, chains=16)
+
+# We can use Shiny too!
+launch_shinystan(fit, host="0.0.0.0", port=4242)
+```
+
+Which will serve an [app](http://192.168.1.100:4242) on the host machine at the specified port.
+
+## Other STAN options {background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+- `brms`/`rstanarm`: Provide a STAN interface using "traditional" R formulas
+- `PyStan`: for Python
+- `Stan.jl`: for Julia
+- `CmdStan`: command line interface
+
+## Other PPLs {background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+- `PyMC`: Python-based -- The new version 4 has a new, JAX-base back-end!
+- `JAGS` (Just Another Gibbs Sampler): with `rjags` and `PyJAGS` interfaces.
+- `Pyro`: Which is PyTorch based.
+- `Edward`: Tensorflow's offering.
+- and many, many more
+
+## Summary {background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+- Bayesian inference is an appealing framework
+  - At the cost of significant computational complexity.
+- STAN is a powerful PPL for Bayesian inference.
+- STAN uses NUTS to perform HMC to achieve efficient exploration of high dimensional spaces.
+- It is simple, intuitive, and has a mature environment.
+
+## Thanks! {background-image="logo_tm.png" background-opacity="0.2" background-size="40%" background-position="0% 0%"}
+
+![](smile-invert.png){.absolute right=80 height="80%"}

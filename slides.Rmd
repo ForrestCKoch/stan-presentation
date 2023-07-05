@@ -1,0 +1,102 @@
+---
+title: "Probabilistic Programming with STAN"
+author: "Forrest Koch"
+date: "2023-03-21"
+header-includes:
+    - \usepackage{animate}
+output: 
+  beamer_presentation: 
+    theme: Luebeck
+    fig_caption: yes
+---
+
+```{r setup, include=FALSE}
+library(rstan)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## *Disclaimer*
+
+I am by no means an expert in Bayesian Inference. I would describe myself
+Bayesian "enthusiast" at best.
+
+## Aims
+
+- To encourage you to consider Bayesian approaches for your analyses.
+- To put STAN on your radar as a flexible and powerful tool for Bayesian inference.
+- Give an overview of how STAN works.
+- Provide some examples of how it can be used.
+
+## Overview
+
+- Why Bayes?
+- Why STAN?
+- How does it work?
+- Some Examples.
+
+## The Canonical Formula
+
+\begin{block}{Bayes Rule}
+$$ P(A|B) = \frac{P(B|A)P(A)}{P(B)} $$
+\end{block}
+
+\centering
+![Thomas Bayes](Thomas_Bayes3.jpg){#id .class width=40% height=40%}
+![Pierre-Simon Laplace](Laplace.jpg){#id .class width=40% height=40%}
+\newline\tiny Thomas Bayes (1701--1761; left) and Pierre-Simon Laplace (1749--1827; right)
+
+## In practice
+
+$$\underbrace{P(\boldsymbol{\theta}|x)}_{\text{posterior}}\propto \overbrace{\mathcal{L}(x|\boldsymbol{\theta})}^{\text{Likelihood}}\underbrace{P(\boldsymbol{\theta})}_{\text{prior}}$$
+
+- $x$ is the observed data
+- $\boldsymbol{\theta}$ are the parameters of interest
+- Note 1: $P(x)$ is not tractable, but it is constant
+- Note 2: A uniform prior results in $P(\boldsymbol{\theta}|x)\propto \mathcal{L}(x|\boldsymbol{\theta})$
+
+## Bayesian versus Frequentist
+
+\begin{block}{Bayesian:}
+$$\hat{\boldsymbol{\theta}}_{\text{MAP}}=\underset{\boldsymbol{\theta}}{\text{argmax}}  \;P(\boldsymbol{\theta}|x)$$
+
+
+\begin{itemize}
+    \item The true parameter is treated as random.
+    \item The estimate is chosen as the posterior mode.
+\end{itemize}
+\end{block}
+
+\begin{block}{Frequentist:}
+$$\hat{\boldsymbol{\theta}}_{\text{MLE}}=\underset{\boldsymbol{\theta}}{\text{argmax}} \;\mathcal{L}(x|\boldsymbol{\theta})$$
+\begin{itemize}
+    \item The true parameter is treated as constant.
+    \item Estimate aims to maximize the probability of observing data.
+\end{itemize}
+\end{block}
+
+
+## Benefits of Bayes over Frequentist
+
+- The ability to incorporate prior knowledge
+- More interpretable
+    - Credible intervals vs. confidence intervals
+    - Estimation of probability of hypotheses
+    - Resolves some of the limitations of p-values
+- More flexible
+    - Hierarchical models are more straightforward
+    - Easier to take measurement uncertainty into account
+    - Non-standard hypothesis testing by probing the posterior
+    
+## Drawbacks of the Bayes approach:
+
+- Computationally complex \& demanding
+- Prior specification is very important
+    - Too strong of a prior can bias results
+    - Can affect tractability (remedied by conjugate priors)
+- Not what people are used to seeing
+
+## NUTS
+
+\begin{frame}
+  \animategraphics[width=\textwidth]{12}{gif/frame-}{0}{39}
+\end{frame}
